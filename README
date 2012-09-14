@@ -1,0 +1,6 @@
+This software is distributen uder Apache license version 2.0, see LICENSE
+file for details.
+
+This class try open seriall port and detect bauderate and protocol
+of device attached to the port. Needs QSCPIDevice at the same directory
+level checked out and is useless as stendalone.
