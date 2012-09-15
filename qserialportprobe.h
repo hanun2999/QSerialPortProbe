@@ -24,6 +24,15 @@ public:
             Protocol protocol;
         };
 
+        /** Dummy constructor, do not use. */
+        Device() :
+            _bauderate(QSerial::BaudeRate_t(-1)),
+            _isOpenable(false),
+            _isPinpointable(false),
+            _port(QString::Null()),
+            _protocol(NONE)
+        { }
+
         /** Initialize new device detector for specified serial port. */
         Device(const char* port);
         
@@ -36,7 +45,7 @@ public:
         /** Try open serial port and indentify device and its parameters.
           @return True if success identify anny device, false otherwise.
           */
-        bool detect(const Setup setups[]);
+        bool detect(const Setup setups[], int count);
 
         /** Return device type/name/description. */
         inline const QString &deviceName() const
