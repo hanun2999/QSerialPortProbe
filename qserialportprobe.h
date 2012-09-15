@@ -11,6 +11,7 @@ public:
     public:
         /** Supported protocols. */
         typedef enum {
+            NONE,
             SCPI,
             MANSON_PS,
             MODBUS,
@@ -38,10 +39,16 @@ public:
         bool detect(const Setup setups[]);
 
         /** Return device type/name/description. */
-        const QString &deviceName() const;
+        inline const QString &deviceName() const
+        {
+            return _deviceName;
+        }
 
         /** Return true if open() suceeds for serial port. */
-        bool isOpenable() const;
+        inline bool isOpenable() const
+        {
+            return _isOpenable;
+        }
 
         /** Return true if device supports pinpointing like beeping, led flashing
           or other king of noise.
@@ -55,25 +62,44 @@ public:
         void pinpoint() const;
 
         /** Return serial port name. */
-        const QString &port() const;
+        inline const QString &port() const
+        {
+            return _port;
+        }
 
         /** Return detected protocol. */
-        Protocol protocol() const;
+        inline Protocol protocol() const
+        {
+            return _protocol;
+        }
 
         /** Return string representation of protocol. */
-        const QString protocolString() const;
+        QString protocolString() const;
 
     protected:
         QSerial::BaudeRate_t _bauderate;
+        QString _deviceName;
+        bool _isOpenable;
         bool _isPinpointable;
         QString _port;
         Protocol _protocol;
     };
 
+    typedef QVector<Device> DeviceList;
+
     QSerialPortProbe();
-    QVector<Device> list();
+
+    /** Start device detection. */
+    void detect();
+
+    /** Return list of detected devices. */
+    const DeviceList &list() const
+    {
+        return devices;
+    }
 
 protected:
+    DeviceList devices;
     const static Device::Setup defaultSetups[];
 };
 
