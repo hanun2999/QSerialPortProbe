@@ -22,6 +22,7 @@ void QSerialPortProbe::detect()
 {
     QStringList ports = QSerial::list();
 
+    devices.clear();
     foreach(const QString &port, ports) {
         Device device(port);
 
@@ -51,18 +52,38 @@ QSerialPortProbe::Device::Device(const QString &port) :
 
 bool QSerialPortProbe::Device::detect(const Setup setups[], int count)
 {
-    for (int idx(0); idx < count; ++idx) {
+    {
         QSerial serial;
+        _isOpenable = serial.open(_port, QSerial::BAUDE9600, 0, 0);
+        if (!_isOpenable)
+            return false;
+    }
 
-        if (!serial.open(_port, setups[idx].baudeRate, 100000, 0))
-            continue;
+    for (int idx(0); idx < count; ++idx) {
+        const Setup &setup = setups[idx];
 
-        // TODO: ...
-        _bauderate = setups[idx].baudeRate;
+        if (setup.protocol == SCPI) {
+            // TODO: ...
+            //_isPinpointable = true;
+        } else if (setup.protocol == MANSON_PS) {
+            // TODO: ...
+        } else if (setup.protocol == MODBUS) {
+            // TODO: ...
+        } else if (setup.protocol == OTHER) {
+            // skip anny protocol detection
+        } else {
+            // this should newer happend, should I throw exception?
+            return false;
+        }
+
+        _bauderate = setup.baudeRate;
+        _protocol = setup.protocol;
+
         return true;
     }
 
-    return false;
+    // returns true if no setups supplied but port is openable
+    return count == 0;
 }
 
 QString QSerialPortProbe::Device::protocolString() const
