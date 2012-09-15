@@ -6,10 +6,7 @@
 #include "../QSCPIDev/qserial.h"
 
 class QSerialPortProbe {
-    QString port;
-    QString
 public:
-
     class Device {
     public:
         /** Supported protocols. */
@@ -61,14 +58,23 @@ public:
         const QString &port() const;
 
         /** Return detected protocol. */
-        const Protocol protocol() const;
+        Protocol protocol() const;
 
         /** Return string representation of protocol. */
         const QString protocolString() const;
+
+    protected:
+        QSerial::BaudeRate_t _bauderate;
+        bool _isPinpointable;
+        QString _port;
+        Protocol _protocol;
     };
 
     QSerialPortProbe();
     QVector<Device> list();
+
+protected:
+    const static Device::Setup defaultSetups[];
 };
 
 #endif // QSERIALPORTPROBE_H

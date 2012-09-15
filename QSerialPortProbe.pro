@@ -8,6 +8,7 @@ QT       -= gui
 
 TARGET = QSerialPortProbe
 TEMPLATE = lib
+# comment/uncomment to build dinamic/static library
 CONFIG += staticlib
 
 VERSION = 0.0.1
