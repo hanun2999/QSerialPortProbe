@@ -1,3 +1,5 @@
+#include "../QSCPIDev/qscpidev.h"
+
 #include "qserialportprobe.h"
 
 
@@ -12,6 +14,10 @@ const QSerialPortProbe::Device::Setup QSerialPortProbe::defaultSetups[] = {
         QSerial::BAUDE19200,
         Device::SCPI,
     },
+    {
+        QSerial::BAUDE115200,
+        Device::SCPI,
+    }
 };
 
 QSerialPortProbe::QSerialPortProbe()
@@ -63,8 +69,18 @@ bool QSerialPortProbe::Device::detect(const Setup setups[], int count)
         const Setup &setup = setups[idx];
 
         if (setup.protocol == SCPI) {
-            // TODO: ...
-            //_isPinpointable = true;
+            QSCPIDev dev;
+
+            if (!dev.open(_port, setup.baudeRate, false))
+                continue;
+
+            QSCPIDev::Version version = dev.systemVersion();
+            if (!version.isValid())
+                continue;
+
+            if (!dev.idn(&_deviceName))
+                continue;
+            _isPinpointable = true;
         } else if (setup.protocol == MANSON_PS) {
             // TODO: ...
         } else if (setup.protocol == MODBUS) {
