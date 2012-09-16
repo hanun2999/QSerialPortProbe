@@ -1,8 +1,8 @@
-#include "../QSCPIDev/qscpidev.h"
+#include "../modbus-eurotherm/eurotherm.h"
 #include "../msdptool/src/include/msdp2xxx.h"
+#include "../QSCPIDev/qscpidev.h"
 
 #include "qserialportprobe.h"
-
 
 #define ARRAY_ITEMS(array) ((sizeof(array)/sizeof(array[0])))
 
@@ -22,6 +22,10 @@ const QSerialPortProbe::Device::Setup QSerialPortProbe::defaultSetups[] = {
     {
         QSerial::BaudeRate_t(-1),
         Device::MANSON_PS,
+    },
+    {
+        QSerial::BaudeRate_t(-1),
+        Device::MODBUS,
     },
 };
 
@@ -111,9 +115,21 @@ bool QSerialPortProbe::Device::detect(const Setup setups[], int count)
 
             // TODO: ...
         } else if (setup.protocol == MODBUS) {
+            Eurotherm eurotherm;
+
+            // FIXME
+            int addr = 1;
+            eurotherm.open(_port.toLocal8Bit().constData(), addr);
+
+            int T;
+            if (!eurotherm.currentT(&T))
+                continue;
+
+            _deviceName = "Probably some Eurotherm regulator";
             // TODO: ...
         } else if (setup.protocol == OTHER) {
             // skip anny protocol detection
+            _deviceName ="Detection skippend";
         } else {
             // this should newer happend, should I throw exception?
             return false;
