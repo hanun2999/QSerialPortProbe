@@ -1,4 +1,5 @@
 #include "../QSCPIDev/qscpidev.h"
+#include "../msdptool/src/include/msdp2xxx.h"
 
 #include "qserialportprobe.h"
 
@@ -17,7 +18,11 @@ const QSerialPortProbe::Device::Setup QSerialPortProbe::defaultSetups[] = {
     {
         QSerial::BAUDE115200,
         Device::SCPI,
-    }
+    },
+    {
+        QSerial::BaudeRate_t(-1),
+        Device::MANSON_PS,
+    },
 };
 
 QSerialPortProbe::QSerialPortProbe()
@@ -58,6 +63,7 @@ QSerialPortProbe::Device::Device(const QString &port) :
 
 bool QSerialPortProbe::Device::detect(const Setup setups[], int count)
 {
+    // TODO: reset all parameters
     {
         QSerial serial;
         _isOpenable = serial.open(_port, QSerial::BAUDE9600, 0, 0);
@@ -82,6 +88,24 @@ bool QSerialPortProbe::Device::detect(const Setup setups[], int count)
                 continue;
             _isPinpointable = true;
         } else if (setup.protocol == MANSON_PS) {
+            const char *portName(_port.toLocal8Bit().constData());
+            sdp_t sdp;
+
+            int sdpError = sdp_open(&sdp, portName, SDP_DEV_ADDR_MIN);
+            if (sdpError != SDP_EOK) {
+                continue;
+            }
+
+            sdp_va_t maximums;
+            sdpError = sdp_get_va_maximums(&sdp, &maximums);
+            sdp_close(&sdp);
+            if (sdpError != SDP_EOK) {
+                continue;
+            }
+
+            QString devNameFmt("Manson SDP, limits: %1 A, %2 V");
+            _deviceName = devNameFmt.arg(maximums.curr).arg(maximums.volt);
+
             // TODO: ...
         } else if (setup.protocol == MODBUS) {
             // TODO: ...
