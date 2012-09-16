@@ -98,6 +98,9 @@ bool QSerialPortProbe::Device::detect(const Setup setups[], int count)
 
             sdp_va_t maximums;
             sdpError = sdp_get_va_maximums(&sdp, &maximums);
+            // FIXME
+            // first call is only for clean-up garabage from terminal
+            sdpError = sdp_get_va_maximums(&sdp, &maximums);
             sdp_close(&sdp);
             if (sdpError != SDP_EOK) {
                 continue;
